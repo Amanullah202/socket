@@ -9,6 +9,7 @@ const io = new Server(server, {
     origin: [
       "http://16.171.22.112", // Your public IP
       "https://next22-eight.vercel.app/", // Vercel app URL
+      "https://steller-grid-1.vercel.app/", // Vercel app URL
     ],
     methods: ["GET", "POST"],
   },
