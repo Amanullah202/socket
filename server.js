@@ -21,10 +21,17 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`Client disconnected: ${socket.id}`);
   });
+
+  // Listen for button press from client and send random number
+  socket.on("requestNumber", () => {
+    const randomNumber = Math.floor(Math.random() * 100) + 1; // Generate random number
+    console.log(`Received 'requestNumber' from ${socket.id}, sending number: ${randomNumber}`);
+    socket.emit("receiveNumber", randomNumber); // Send the number back to client
+  });
 });
 
 // Start the server
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4040;
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

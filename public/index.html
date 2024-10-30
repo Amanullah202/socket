@@ -7,15 +7,35 @@
 </head>
 <body>
   <h1>WebSocket Server</h1>
-  <p>Open your console to see connection logs.</p>
+  <p>Press the button to request a number from the server.</p>
+  
+  <button id="requestNumberBtn">Request Number</button>
+  <p id="numberDisplay">Number: -</p>
+  
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket = io();
+    const requestNumberBtn = document.getElementById("requestNumberBtn");
+    const numberDisplay = document.getElementById("numberDisplay");
+
     socket.on("connect", () => {
       console.log("Connected to server, Socket ID:", socket.id);
     });
+
     socket.on("disconnect", () => {
       console.log("Disconnected from server");
+    });
+
+    // Send request to server and display number received
+    requestNumberBtn.addEventListener("click", () => {
+      console.log("Button pressed, requesting number from server");
+      socket.emit("requestNumber"); // Emit event to server
+    });
+
+    // Listen for server response and update the displayed number
+    socket.on("receiveNumber", (number) => {
+      console.log("Received number from server:", number);
+      numberDisplay.textContent = `Number: ${number}`;
     });
   </script>
 </body>
