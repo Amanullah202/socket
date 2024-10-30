@@ -18,7 +18,7 @@ const io = new Server(server, {
   },
 });
 
-// Initialize Redis client
+// Initialize Redis client now
 const redis = new Redis();
 
 const millisecondsInASecond = 1000;
