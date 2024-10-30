@@ -15,7 +15,6 @@
     "@injectivelabs/ts-types": "^1.14.13",
     "@injectivelabs/utils": "^1.14.13",
     "express": "^4.17.1",
-    "ioredis": "^5.4.1",
     "socket.io": "^4.8.0"
   },
   "devDependencies": {
