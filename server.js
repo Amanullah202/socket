@@ -6,7 +6,10 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://16.171.22.112", // Replace with your public IP
+    origin: [
+      "http://16.171.22.112", // Your public IP
+      "https://next22-eight.vercel.app/", // Vercel app URL
+    ],
     methods: ["GET", "POST"],
   },
 });
