@@ -17,21 +17,30 @@ const io = new Server(server, {
 // Serve the index.html file from the public folder
 app.use(express.static("public"));
 
-// Handle WebSocket connections
+// Array to hold all numbers requested by users
+let userNumbers = [];
+
 io.on("connection", (socket) => {
   console.log(`Client connected: ${socket.id}`);
+
+  // Send current user numbers to newly connected user
+  socket.emit("updateNumbers", userNumbers);
 
   socket.on("disconnect", () => {
     console.log(`Client disconnected: ${socket.id}`);
   });
 
-  // Listen for button press from client and send random number
   socket.on("requestNumber", () => {
     const randomNumber = Math.floor(Math.random() * 100) + 1; // Generate random number
     console.log(
       `Received 'requestNumber' from ${socket.id}, sending number: ${randomNumber}`
     );
-    socket.emit("receiveNumber", randomNumber); // Send the number back to client
+
+    // Store the user's number request
+    userNumbers.push({ userId: socket.id, number: randomNumber });
+
+    // Emit the new number to all clients
+    io.emit("receiveNumber", { userId: socket.id, number: randomNumber });
   });
 });
 
