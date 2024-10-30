@@ -6,7 +6,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*", // Allow all origins for testing
+    origin: "http://16.171.22.112", // Replace with your public IP
     methods: ["GET", "POST"],
   },
 });
@@ -14,7 +14,7 @@ const io = new Server(server, {
 // Serve the index.html file from the public folder
 app.use(express.static("public"));
 
-// Handle WebSocket connections (this part can be commented out for now)
+// Handle WebSocket connections
 io.on("connection", (socket) => {
   console.log(`Client connected: ${socket.id}`);
 
@@ -22,7 +22,7 @@ io.on("connection", (socket) => {
     console.log(`Client disconnected: ${socket.id}`);
   });
 
-  // Listen for button press from client and send random number (can be ignored for now)
+  // Listen for button press from client and send random number
   socket.on("requestNumber", () => {
     const randomNumber = Math.floor(Math.random() * 100) + 1; // Generate random number
     console.log(
