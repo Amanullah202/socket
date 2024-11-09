@@ -74,8 +74,10 @@ app.get("/", async (req, res) => {
 
         // Iterate over the messageObj properties and display each one dynamically
         Object.keys(messageObj).forEach((key) => {
-          if (key !== 'sender' && key !== 'msg') {
-            messageHTML += `<div><strong>${key}:</strong> ${JSON.stringify(messageObj[key])}</div>`;
+          if (key !== "sender" && key !== "msg") {
+            messageHTML += `<div><strong>${key}:</strong> ${JSON.stringify(
+              messageObj[key]
+            )}</div>`;
           }
         });
 
@@ -98,8 +100,7 @@ app.get("/", async (req, res) => {
   }
 });
 
-
-// Function to generate a unique session ID
+// Function to generate a unique sesssion ID
 const generateSessionId = () => crypto.randomBytes(16).toString("hex");
 
 // Handle socket connections
@@ -123,6 +124,10 @@ io.on("connection", (socket) => {
     try {
       const existingSession = await redis.hgetall(sessionKey);
 
+      // Retrieve the last 30 messages from Redis
+      const pastMessages = await redis.lrange(messagesKey, 0, 29); // Get latest 30 messages
+      const AllPast30MsgsObj = pastMessages.map((msg) => JSON.parse(msg));
+
       if (existingSession.sessionId) {
         if (currentTime < parseInt(existingSession.expirationTime)) {
           console.log(`User already logged in:`, existingSession);
@@ -134,6 +139,7 @@ io.on("connection", (socket) => {
             expirationTime: existingSession.expirationTime,
             message: "Login successful! (Already logged in)",
             code: 2,
+            AllPast30MsgsObj, // Include the last 30 messages
           });
           return;
         } else {
@@ -166,6 +172,7 @@ io.on("connection", (socket) => {
               loginTime: currentTime,
               expirationTime: newExpirationTime,
               message: "Login successful! (Session updated)",
+              AllPast30MsgsObj, // Include the last 30 messages
             });
           } else {
             socket.emit("login", { success: false, message: "Login Failed!" });
@@ -202,6 +209,7 @@ io.on("connection", (socket) => {
           loginTime: currentTime,
           expirationTime,
           message: "Login successful!",
+          AllPast30MsgsObj, // Include the last 30 messages
         });
       } else {
         socket.emit("login", { success: false, message: "Login Failed!" });
@@ -211,6 +219,7 @@ io.on("connection", (socket) => {
       socket.emit("login", { success: false, message: error.message });
     }
   });
+
   socket.on("chatMessage", async ({ sender, sessionId, msg, ...rest }) => {
     try {
       const sessionKey = `session:${sender}`;
