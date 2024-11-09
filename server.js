@@ -229,6 +229,7 @@ io.on("connection", (socket) => {
 
       // Send the standard fields (sender and msg) plus any dynamic "rest" fields
       io.emit("chatMessage", { sender, msg, ...rest });
+      console.log("chatMessage emitting", { sender, msg, ...rest } )
     } catch (error) {
       console.error("Error handling chatMessage:", error.message);
     }
