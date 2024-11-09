@@ -8,8 +8,9 @@ const Redis = require("ioredis");
 const app = express();
 const server = http.createServer(app);
 const allowedOrigins = [
-  "https://next22-eight.vercel.app", // Vercel app URL
-  "https://steller-grid-1.vercel.app", // Vercel app URL
+  "https://next22-eight.vercel.app",
+  "https://steller-grid-1.vercel.app",
+  "http://localhost:3000",
 ];
 
 const io = new Server(server, {
