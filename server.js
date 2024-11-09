@@ -7,12 +7,21 @@ const Redis = require("ioredis");
 
 const app = express();
 const server = http.createServer(app);
+const allowedOrigins = [
+  "https://next22-eight.vercel.app", // Vercel app URL
+  "https://steller-grid-1.vercel.app", // Vercel app URL
+];
+
 const io = new Server(server, {
   cors: {
-    origin: [
-      "https://next22-eight.vercel.app/", // Vercel app URL
-      "https://steller-grid-1.vercel.app/", // Vercel app URL
-    ],
+    origin: (origin, callback) => {
+      // Check if the origin is in the allowed list
+      if (allowedOrigins.includes(origin) || !origin) {
+        callback(null, true); // Allow the request
+      } else {
+        callback(new Error("Not allowed by CORS")); // Block the request
+      }
+    },
     methods: ["GET", "POST"],
   },
 });
@@ -176,8 +185,13 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("chatMessage", async ({ sender, sessionId, msg }) => {
-    console.log("Received chatMessage event:", { sender, sessionId, msg });
+  socket.on("chatMessage", async ({ sender, sessionId, msg, ...rest }) => {
+    console.log("Received chatMessage event:", {
+      sender,
+      sessionId,
+      msg,
+      ...rest,
+    });
 
     try {
       const sessionKey = `session:${sender}`;
@@ -211,7 +225,9 @@ io.on("connection", (socket) => {
       }
 
       console.log(`Message received from ${sender}: ${msg}`);
-      io.emit("chatMessage", { sender, msg });
+
+      // Send the standard fields (sender and msg) plus any dynamic "rest" fields
+      io.emit("chatMessage", { sender, msg, ...rest });
     } catch (error) {
       console.error("Error handling chatMessage:", error.message);
     }
