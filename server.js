@@ -29,7 +29,7 @@ const io = new Server(server, {
 
 // Initialize Redis client now
 const redis = new Redis();
-
+const messagesKey = "chatMessages";
 const millisecondsInASecond = 1000;
 const ExpirationTimeDifference = 86400; // 24 hours
 
@@ -62,10 +62,23 @@ app.get("/", async (req, res) => {
       })
       .join("");
 
+    // Fetch the latest 30 chat messages from Redis
+    const chatMessages = await redis.lrange(messagesKey, 0, 29);
+    const chatMessagesHTML = chatMessages
+      .map((msg) => {
+        const { sender, msg: message } = JSON.parse(msg);
+        return `<div><strong>${sender}:</strong> ${message}</div>`;
+      })
+      .join("");
+
     res.send(`
       <h1>Welcome to the Chat Server</h1>
       <h2>Currently Logged-In Users: ${sessions.length}</h2>
       ${sessionInfoHTML}
+      <h2>Recent Chat Messages:</h2>
+      <div id="messages">
+        ${chatMessagesHTML}
+      </div>
     `);
   } catch (error) {
     console.error("Error fetching session data:", error.message);
@@ -185,7 +198,6 @@ io.on("connection", (socket) => {
       socket.emit("login", { success: false, message: error.message });
     }
   });
-
   socket.on("chatMessage", async ({ sender, sessionId, msg, ...rest }) => {
     console.log("Received chatMessage event:", {
       sender,
@@ -217,7 +229,6 @@ io.on("connection", (socket) => {
         console.log(
           `Session mismatch for ${sender}. Sent session ID: ${sessionId}, current session ID: ${loggedInUser.sessionId}`
         );
-
         socket.emit("error", {
           message:
             "Incorrect session ID or session expired. Please log in again.",
@@ -227,9 +238,18 @@ io.on("connection", (socket) => {
 
       console.log(`Message received from ${sender}: ${msg}`);
 
-      // Send the standard fields (sender and msg) plus any dynamic "rest" fields
+      // Save the message in Redis (ensuring only the last 30 messages are saved)
+      const messageObj = { sender, msg, ...rest, timestamp: currentTime };
+
+      // Push the new message to the list in Redis and limit it to the latest 30 messages
+      await redis.lpush(messagesKey, JSON.stringify(messageObj));
+      await redis.ltrim(messagesKey, 0, 29); // Keep only the latest 30 messages
+
+      console.log("chatMessage stored in Redis:", messageObj);
+
+      // Emit the chatMessage event to all clients
       io.emit("chatMessage", { sender, msg, ...rest });
-      console.log("chatMessage emitting", { sender, msg, ...rest } )
+      console.log("chatMessage emitting", { sender, msg, ...rest });
     } catch (error) {
       console.error("Error handling chatMessage:", error.message);
     }
