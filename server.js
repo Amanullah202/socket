@@ -39,6 +39,7 @@ app.use(express.json());
 // Serve a basic HTML page for testing
 app.get("/", async (req, res) => {
   try {
+    // Fetch all session keys and session data from Redis
     const keys = await redis.keys("session:*");
     const sessions = await Promise.all(keys.map((key) => redis.hgetall(key)));
 
@@ -66,8 +67,19 @@ app.get("/", async (req, res) => {
     const chatMessages = await redis.lrange(messagesKey, 0, 29);
     const chatMessagesHTML = chatMessages
       .map((msg) => {
-        const { sender, msg: message } = JSON.parse(msg);
-        return `<div><strong>${sender}:</strong> ${message}</div>`;
+        const messageObj = JSON.parse(msg);
+
+        // Build the HTML string for each message, including all properties in messageObj
+        let messageHTML = `<div><strong>${messageObj.sender}:</strong> ${messageObj.msg}</div>`;
+
+        // Iterate over the messageObj properties and display each one dynamically
+        Object.keys(messageObj).forEach((key) => {
+          if (key !== 'sender' && key !== 'msg') {
+            messageHTML += `<div><strong>${key}:</strong> ${JSON.stringify(messageObj[key])}</div>`;
+          }
+        });
+
+        return messageHTML;
       })
       .join("");
 
@@ -85,6 +97,7 @@ app.get("/", async (req, res) => {
     res.status(500).send("Error fetching session data.");
   }
 });
+
 
 // Function to generate a unique session ID
 const generateSessionId = () => crypto.randomBytes(16).toString("hex");
@@ -199,13 +212,6 @@ io.on("connection", (socket) => {
     }
   });
   socket.on("chatMessage", async ({ sender, sessionId, msg, ...rest }) => {
-    console.log("Received chatMessage event:", {
-      sender,
-      sessionId,
-      msg,
-      ...rest,
-    });
-
     try {
       const sessionKey = `session:${sender}`;
       const loggedInUser = await redis.hgetall(sessionKey);
@@ -238,8 +244,8 @@ io.on("connection", (socket) => {
 
       console.log(`Message received from ${sender}: ${msg}`);
 
-      // Save the message in Redis (ensuring only the last 30 messages are saved)
-      const messageObj = { sender, msg, ...rest, timestamp: currentTime };
+      // Save the full message object in Redis (ensuring only the last 30 messages are saved)
+      const messageObj = { sender, msg, timestamp: currentTime, ...rest };
 
       // Push the new message to the list in Redis and limit it to the latest 30 messages
       await redis.lpush(messagesKey, JSON.stringify(messageObj));
