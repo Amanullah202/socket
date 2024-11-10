@@ -7,11 +7,12 @@ const Redis = require("ioredis");
 
 const app = express();
 const server = http.createServer(app);
-const allowedOrigins = [
-  "https://next22-eight.vercel.app",
-  "https://steller-grid-1.vercel.app",
-  "http://localhost:3000",
-];
+// const allowedOrigins = [
+//   "https://next22-eight.vercel.app",
+//   "https://steller-grid-1.vercel.app",
+//   "http://localhost:3000",
+// ];
+const allowedOrigins = ["https://www.stellergrid.com"];
 
 const io = new Server(server, {
   cors: {
