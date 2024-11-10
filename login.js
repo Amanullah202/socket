@@ -3,12 +3,12 @@ const { IndexerRestExplorerApi } = require("@injectivelabs/sdk-ts");
 const { getNetworkEndpoints, Network } = require("@injectivelabs/networks");
 
 // Hardcoded fee receiver address
-const FEE_RECEIVER_ADDRESS = "inj1g2fr9n8v0yz4kuvpm8vzr07p8rn0ynlu45pr69";
+const FEE_RECEIVER_ADDRESS = "inj1msenpzcdqc602k76ll2f4rxqacj8g5pdaz7flq";
 const MIN_LOGIN_INJ_AMOUNT = 0.0013;
 
 // Fetch transaction details based on the transaction hash
 async function fetchTransactionDetails(txHash) {
-  const endpoints = getNetworkEndpoints(Network.Testnet);
+  const endpoints = getNetworkEndpoints(Network.Mainnet);
   const indexerRestExplorerApi = new IndexerRestExplorerApi(
     `${endpoints.explorer}/api/explorer/v1`
   );
