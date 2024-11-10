@@ -3,7 +3,7 @@ const { IndexerRestExplorerApi } = require("@injectivelabs/sdk-ts");
 const { getNetworkEndpoints, Network } = require("@injectivelabs/networks");
 
 // Hardcoded fee receiver address
-const FEE_RECEIVER_ADDRESS = "inj1g2fr9n8v0yz4kuvpm8vzr07p8rn0ynlu45pr69"; 
+const FEE_RECEIVER_ADDRESS = "inj1g2fr9n8v0yz4kuvpm8vzr07p8rn0ynlu45pr69";
 const MIN_LOGIN_INJ_AMOUNT = 0.0013;
 
 // Fetch transaction details based on the transaction hash
@@ -38,7 +38,9 @@ async function validateLoginTransaction(transactionDetails, senderAddress) {
     throw new Error("Transaction sender does not match the user's address.");
   }
   if (txReceiver !== FEE_RECEIVER_ADDRESS) {
-    throw new Error("Receiver address does not match the expected address.");
+    throw new Error(
+      `Receiver address mismatch: Given transaction receiver address: ${txReceiver}, Expected receiver address: ${FEE_RECEIVER_ADDRESS}`
+    );
   }
   if (amount < MIN_LOGIN_INJ_AMOUNT) {
     throw new Error(
