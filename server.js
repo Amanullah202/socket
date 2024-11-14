@@ -297,6 +297,11 @@ io.engine.on("connection_error", (err) => {
   // console.log(err.code); // the error code, for example 1
   console.log(err.message); // the error message, for example "Session ID unknown"
 });
+// Import the dev app from the 'dev' folder
+const devApp = require("./dev/server");
+
+// Use the /dev route to point to the dev app
+app.use("/dev", devApp);
 // Start the server
 const PORT = process.env.PORT || 4040;
 server.listen(PORT, () => {
