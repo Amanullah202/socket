@@ -4,6 +4,7 @@ const app = express();
 
 // Define a simple route to test the dev server
 app.get('/', (req, res) => {
+  console.log("Someone tried to access url, lets see it its working")
   res.send('Welcome to the Dev App!');
 });
 
