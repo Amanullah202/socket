@@ -8,15 +8,25 @@ const MIN_LOGIN_INJ_AMOUNT = 0.0013;
 
 // Fetch transaction details based on the transaction hash
 let NetworkName = "";
+
 function getNetworkFromEnv() {
+  // Check if the environment variable is 'mainnet'
   if (process.env.CHAIN_NETWORK === "mainnet") {
     NetworkName = "Mainnet";
     return Network.Mainnet;
-  } else {
+  }
+  
+  // Check if the environment variable is 'testnet'
+  if (process.env.CHAIN_NETWORK === "testnet") {
     NetworkName = "Testnet";
     return Network.Testnet;
   }
+  
+  // If neither, default to 'mainnet'
+  NetworkName = "Mainnet";
+  return Network.Mainnet;
 }
+
 async function fetchTransactionDetails(txHash) {
   // Function to determine network based on the environment variable
 
