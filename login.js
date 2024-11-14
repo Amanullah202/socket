@@ -8,11 +8,23 @@ const MIN_LOGIN_INJ_AMOUNT = 0.0013;
 
 // Fetch transaction details based on the transaction hash
 async function fetchTransactionDetails(txHash) {
-  const endpoints = getNetworkEndpoints(Network.Mainnet);
+// Function to determine network based on the environment variable
+function getNetworkFromEnv() {
+  if (process.env.CHAIN_NETWORK === 'mainnet') {
+    return Network.Mainnet;
+  } else {
+    return Network.Testnet;
+  }
+}
+
+// Define endpoints using the network determined by the function
+const network = getNetworkFromEnv();
+const endpoints = getNetworkEndpoints(network);
+
   const indexerRestExplorerApi = new IndexerRestExplorerApi(
     `${endpoints.explorer}/api/explorer/v1`
   );
-  console.log(`Fetching transaction details for txHash: ${txHash}`);
+  console.log(`Fetching transaction details for txHash: ${txHash} on network: ${process.env.CHAIN_NETWORK}`);
   return await indexerRestExplorerApi.fetchTransaction(txHash);
 }
 
