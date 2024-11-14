@@ -1,13 +1,14 @@
+// dev/server.js
 const express = require('express');
-const router = express.Router();
-
-// Create a basic Express app inside the dev folder
 const app = express();
 
-// Handle a simple GET request for now
+// Define a simple route to test the dev server
 app.get('/', (req, res) => {
   res.send('Welcome to the Dev App!');
 });
 
-// Export the app for use in the main server
-module.exports = app;
+// Start the server
+const PORT = 3001;  // You can choose any available port
+app.listen(PORT, () => {
+  console.log(`Dev server is running on http://localhost:${PORT}`);
+});
