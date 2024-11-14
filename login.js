@@ -7,24 +7,29 @@ const FEE_RECEIVER_ADDRESS = "inj1msenpzcdqc602k76ll2f4rxqacj8g5pdaz7flq";
 const MIN_LOGIN_INJ_AMOUNT = 0.0013;
 
 // Fetch transaction details based on the transaction hash
-async function fetchTransactionDetails(txHash) {
-// Function to determine network based on the environment variable
+let NetworkName = "";
 function getNetworkFromEnv() {
-  if (process.env.CHAIN_NETWORK === 'mainnet') {
+  if (process.env.CHAIN_NETWORK === "mainnet") {
+    NetworkName = "Mainnet";
     return Network.Mainnet;
   } else {
+    NetworkName = "Testnet";
     return Network.Testnet;
   }
 }
+async function fetchTransactionDetails(txHash) {
+  // Function to determine network based on the environment variable
 
-// Define endpoints using the network determined by the function
-const network = getNetworkFromEnv();
-const endpoints = getNetworkEndpoints(network);
+  // Define endpoints using the network determined by the function
+  const network = getNetworkFromEnv();
+  const endpoints = getNetworkEndpoints(network);
 
   const indexerRestExplorerApi = new IndexerRestExplorerApi(
     `${endpoints.explorer}/api/explorer/v1`
   );
-  console.log(`Fetching transaction details for txHash: ${txHash} on network: ${process.env.CHAIN_NETWORK}`);
+  console.log(
+    `Fetching transaction details for txHash: ${txHash} on network: ${NetworkName}`
+  );
   return await indexerRestExplorerApi.fetchTransaction(txHash);
 }
 
